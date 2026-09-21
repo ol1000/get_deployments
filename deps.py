@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, render_template_string
 import requests
 import json
@@ -10,7 +11,7 @@ HTML_FORM = """
 <h2>New Relic Deployment Query</h2>
 <form method=post>
   <label>API Key:</label><br>
-  <input type=text name=api_key size=60 value="{{ api_key|default('') }}"><br><br>
+  <input type=password name=api_key size=60><br><br>
   <label>Datacenter (US or EU):</label><br>
   <input type=text name=datacenter value="{{ datacenter|default('US') }}"><br><br>
   <input type=submit value="Query Deployments">
@@ -137,9 +138,10 @@ def index():
             except requests.exceptions.RequestException as e:
                 error = f"Request failed: {e}"
 
-    return render_template_string(HTML_FORM, results=results, error=error, api_key=api_key, datacenter=datacenter)
+    return render_template_string(HTML_FORM, results=results, error=error, datacenter=datacenter)
 
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
